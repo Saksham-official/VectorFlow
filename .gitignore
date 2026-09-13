@@ -19,6 +19,11 @@ env/
 data/uploads/
 data/blockchain/
 
+# Allow benchmark model artifacts (trained weights for evaluation suite)
+!benching/models/*.pt
+!benching/models/*.joblib
+!benching/models/*.ubj
+
 # Datasets (large, regenerate with modules/data_pipeline/build_training_set.py)
 data/*.csv
 data/*.parquet
