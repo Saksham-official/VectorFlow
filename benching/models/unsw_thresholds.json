@@ -1,0 +1,5 @@
+{
+  "ForecastLSTM": 0.3514,
+  "ForecastGNN": 0.09,
+  "Ensemble (LSTM+GNN)": 0.2594
+}

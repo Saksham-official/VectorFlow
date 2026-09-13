@@ -1,0 +1,25 @@
+{
+  "input_dim": 15,
+  "hidden_dim": 128,
+  "num_layers": 2,
+  "bidirectional": true,
+  "seq_len": 10,
+  "threshold": 0.3367,
+  "feature_names": [
+    "Tot Fwd Pkts_sum",
+    "Tot Bwd Pkts_sum",
+    "TotLen Fwd Pkts_sum",
+    "TotLen Bwd Pkts_sum",
+    "Flow Duration_mean",
+    "Flow Duration_std",
+    "Flow IAT Mean_mean",
+    "Dst Port_nunique",
+    "SYN Flag Cnt_sum",
+    "ACK Flag Cnt_sum",
+    "RST Flag Cnt_sum",
+    "FIN Flag Cnt_sum",
+    "PSH Flag Cnt_sum",
+    "flow_count",
+    "bwd_fwd_pkt_ratio"
+  ]
+}

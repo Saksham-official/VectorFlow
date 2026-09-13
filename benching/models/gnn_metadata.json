@@ -1,0 +1,52 @@
+{
+  "in_dim": 21,
+  "hidden_dim": 64,
+  "num_cols": [
+    "dur",
+    "spkts",
+    "dpkts",
+    "sbytes",
+    "dbytes",
+    "rate",
+    "sload",
+    "dload",
+    "sinpkt",
+    "dinpkt",
+    "sjit",
+    "djit",
+    "swin",
+    "dwin",
+    "tcprtt",
+    "synack",
+    "ackdat",
+    "smean",
+    "dmean",
+    "ct_src_dport_ltm",
+    "ct_dst_sport_ltm"
+  ],
+  "svc_to_idx": {
+    "-": 0,
+    "dhcp": 1,
+    "dns": 2,
+    "ftp": 3,
+    "ftp-data": 4,
+    "http": 5,
+    "irc": 6,
+    "pop3": 7,
+    "radius": 8,
+    "smtp": 9,
+    "snmp": 10,
+    "ssh": 11,
+    "ssl": 12
+  },
+  "state_to_idx": {
+    "ACC": 13,
+    "CLO": 14,
+    "CON": 15,
+    "FIN": 16,
+    "INT": 17,
+    "REQ": 18,
+    "RST": 19
+  },
+  "total_nodes": 20
+}

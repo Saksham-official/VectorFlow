@@ -1,0 +1,20 @@
+Suite,Horizon,Model,TP,TN,FP,FN,Recall / Detection Rate,Precision,False Positive Rate (FPR),F1-Score,F2-Score,PR-AUC,ROC-AUC,Balanced Accuracy,Threshold,Inference Latency (ms),Throughput (win/s),Resource Footprint,TTD / Lead Time,Threat Alert-to-Mitigation Ratio
+Unified Threat Pipeline (Prediction + Forecasting),120s Advance Advisory + Active Mitigation,Unified Threat Engine (Dual-Head XGBoost),64,11,0,0,1.0,1.0,0.0,1.0,1.0,1.0,1.0,1.0,0.2907,0.215,4651.2,1.67 MB disk | 22 MB RAM,120 seconds,1.0
+CSE-CIC-IDS2018 SSH-Bruteforce (Feb 14),120s (2-Min Advance Warning),XGBoost,14,11,0,0,1.0,1.0,0.0,1.0,1.0,1.0,1.0,1.0,0.1407,0.125,8000.0,1.25 MB disk | 15 MB RAM,120 seconds,1.0
+CSE-CIC-IDS2018 SSH-Bruteforce (Feb 14),120s (2-Min Advance Warning),RandomForest,14,11,0,0,1.0,1.0,0.0,1.0,1.0,1.0,1.0,1.0,0.2535,10.385,96.3,21.2 MB disk | 48 MB RAM,120 seconds,1.0
+CSE-CIC-IDS2018 SSH-Bruteforce (Feb 14),120s (2-Min Advance Warning),Ensemble (XGB+LSTM),14,11,0,0,1.0,1.0,0.0,1.0,1.0,1.0,1.0,1.0,0.2019,0.637,1569.9,3.45 MB disk | 36 MB RAM,120 seconds,1.0
+CSE-CIC-IDS2018 SSH-Bruteforce (Feb 14),120s (2-Min Advance Warning),LSTM,2,11,0,12,0.1429,1.0,0.0,0.25,0.1724,0.6277,0.487,0.5714,0.3367,0.512,1953.1,2.20 MB disk | 32 MB RAM,120 seconds,1.0
+CSE-CIC-IDS2018 SSH-Bruteforce (Feb 14),120s (2-Min Advance Warning),LogReg,0,11,0,14,0.0,0.0,0.0,0.0,0.0,0.596,0.5909,0.5,0.4538,0.043,23255.8,0.001 MB disk | 5 MB RAM,0 seconds,0.0
+CSE-CIC-IDS2018 SSH-Bruteforce (Feb 14),30s (Standard Lookahead),XGBoost,5,11,9,0,1.0,0.3571,0.45,0.5263,0.7353,0.343,0.685,0.775,0.1407,0.125,8000.0,1.25 MB disk | 15 MB RAM,30 seconds,0.3571
+CSE-CIC-IDS2018 SSH-Bruteforce (Feb 14),30s (Standard Lookahead),RandomForest,5,11,9,0,1.0,0.3571,0.45,0.5263,0.7353,0.278,0.64,0.775,0.2535,10.385,96.3,21.2 MB disk | 48 MB RAM,30 seconds,0.3571
+CSE-CIC-IDS2018 SSH-Bruteforce (Feb 14),30s (Standard Lookahead),Ensemble (XGB+LSTM),5,11,9,0,1.0,0.3571,0.45,0.5263,0.7353,0.2901,0.66,0.775,0.2019,0.637,1569.9,3.45 MB disk | 36 MB RAM,30 seconds,0.3571
+CSE-CIC-IDS2018 SSH-Bruteforce (Feb 14),30s (Standard Lookahead),LSTM,0,18,2,5,0.0,0.0,0.1,0.0,0.0,0.1847,0.35,0.45,0.3367,0.512,1953.1,2.20 MB disk | 32 MB RAM,0 seconds,0.0
+CSE-CIC-IDS2018 SSH-Bruteforce (Feb 14),30s (Standard Lookahead),LogReg,0,20,0,5,0.0,0.0,0.0,0.0,0.0,0.2861,0.5,0.5,0.4538,0.043,23255.8,0.001 MB disk | 5 MB RAM,0 seconds,0.0
+UNSW-NB15 Multi-Attack Benchmark,20 Flows Forward,Ensemble (LSTM+GNN),1990,9538,475,140,0.9343,0.8073,0.0474,0.8662,0.9058,0.8422,0.9745,0.9434,0.2594,0.273,3663.0,0.67 MB disk | 42 MB RAM,20 flows,0.8073
+UNSW-NB15 Multi-Attack Benchmark,20 Flows Forward,ForecastGNN,1973,9543,470,157,0.9263,0.8076,0.0469,0.8629,0.8998,0.8379,0.9726,0.9397,0.09,0.157,6369.4,0.07 MB disk | 38 MB RAM,20 flows,0.8076
+UNSW-NB15 Multi-Attack Benchmark,20 Flows Forward,ForecastLSTM,1984,9516,497,146,0.9315,0.7997,0.0496,0.8606,0.9017,0.8296,0.9726,0.9409,0.3514,0.116,8620.7,0.59 MB disk | 32 MB RAM,20 flows,0.7997
+CSE-CIC-IDS2018 10-Second Baseline,30s Forward,RandomForest,63,3097,674,76,0.4532,0.0855,0.1787,0.1438,0.2436,0.0639,0.6856,0.6373,0.2535,10.385,96.3,21.2 MB disk | 48 MB RAM,30 seconds,0.0855
+CSE-CIC-IDS2018 10-Second Baseline,30s Forward,XGBoost,7,3551,220,132,0.0504,0.0308,0.0583,0.0383,0.0447,0.0531,0.6573,0.496,0.1407,0.125,8000.0,1.25 MB disk | 15 MB RAM,30 seconds,0.0308
+CSE-CIC-IDS2018 10-Second Baseline,30s Forward,Ensemble (XGB+LSTM),10,3425,346,129,0.0719,0.0281,0.0918,0.0404,0.0548,0.0496,0.6081,0.4901,0.2019,0.637,1569.9,3.45 MB disk | 36 MB RAM,30 seconds,0.0281
+CSE-CIC-IDS2018 10-Second Baseline,30s Forward,LSTM,10,3477,294,129,0.0719,0.0329,0.078,0.0451,0.0581,0.0404,0.5794,0.497,0.3367,0.512,1953.1,2.20 MB disk | 32 MB RAM,30 seconds,0.0329
+CSE-CIC-IDS2018 10-Second Baseline,30s Forward,LogReg,46,3093,678,93,0.3309,0.0635,0.1798,0.1066,0.1797,0.2263,0.5045,0.5756,0.4538,0.043,23255.8,0.001 MB disk | 5 MB RAM,30 seconds,0.0635

@@ -19,6 +19,15 @@ env/
 data/uploads/
 data/blockchain/
 
+# Allow benchmark model artifacts (trained weights for evaluation suite)
+!benching/models/*.pt
+!benching/models/*.joblib
+!benching/models/*.ubj
+
+# Allow production LSTM artifacts (already tracked, explicitly kept)
+!lstm/artifacts/*.pt
+!lstm/artifacts/*.joblib
+
 # Datasets (large, regenerate with modules/data_pipeline/build_training_set.py)
 data/*.csv
 data/*.parquet
