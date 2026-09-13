@@ -88,7 +88,7 @@ def test_forecast_is_real_model_output_as_replay_advances():
     late = client.get("/api/forecast").json()["infiltration_probability"]
     assert 0.0 <= early <= 1.0
     assert 0.0 <= late <= 1.0
-    assert store.current.forecasts[19].model_name == "ForecastLSTM"
+    assert store.current.forecasts[19].model_name == "ForecastModel"
 
 
 def test_replay_completes():

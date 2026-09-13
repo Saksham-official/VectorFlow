@@ -13,7 +13,7 @@ from contracts import Explanation, FeatureContribution, SecurityAlert
 def test_hash_is_deterministic(tmp_path):
     alert = SecurityAlert(
         alert_id="a-1", timestamp="2026-01-01T00:00:00Z", attack_probability=0.8,
-        predicted_stage="Initial Access", model_name="ForecastLSTM", severity="high",
+        predicted_stage="Initial Access", model_name="ForecastModel", severity="high",
     )
     explanation = Explanation(
         top_features=[FeatureContribution(feature="flow_count", contribution=0.5)],
@@ -28,7 +28,7 @@ def test_local_ledger_record_and_tamper_detection(tmp_path):
     ledger = LocalSecurityEvidenceLedger(tmp_path / "ledger.json")
     alert = SecurityAlert(
         alert_id="a-1", timestamp="2026-01-01T00:00:00Z", attack_probability=0.8,
-        predicted_stage="Initial Access", model_name="ForecastLSTM", severity="high",
+        predicted_stage="Initial Access", model_name="ForecastModel", severity="high",
     )
     explanation = Explanation(top_features=[], summary="observed")
     record = ledger.record(alert, explanation)
@@ -42,7 +42,7 @@ def test_local_ledger_record_and_tamper_detection(tmp_path):
 
 
 def test_end_to_end_alert_evidence_and_verification(tmp_path, monkeypatch):
-    # Use an isolated ledger while exercising the real backend/LSTM path.
+    # Use an isolated ledger while exercising the real backend model path.
     cfg = get_config()
     monkeypatch.setitem(cfg["blockchain"], "ledger_path", str(tmp_path / "ledger.json"))
     store.current = None

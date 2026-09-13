@@ -15,15 +15,9 @@ env/
 .idea/
 .vscode/
 
-# Runtime data & model artifacts
+# Runtime data
 data/uploads/
 data/blockchain/
-*.pkl
-*.joblib
-*.onnx
-*.pt
-*.h5
-*.ubj
 
 # Datasets (large, regenerate with modules/data_pipeline/build_training_set.py)
 data/*.csv

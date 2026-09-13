@@ -22,9 +22,9 @@ modules:
   data_pipeline:
     implementation: real  # mock | real
   forecasting:
-    # real loads the canonical LSTM artifacts; mock is an explicit fallback.
+    # real loads the canonical model artifacts; mock is an explicit fallback.
     implementation: real
-    artifacts_dir: lstm/artifacts
+    artifacts_dir: model/artifacts
   attack_intelligence:
     implementation: real  # mock | real
     smoothing_windows: 3   # one burst counts 1/3 of a stage's support

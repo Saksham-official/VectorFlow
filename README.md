@@ -1,15 +1,15 @@
 # SIH26153 — AI-based Network Attack Forecasting from Network Traffic Data
 
 Fully offline SIH prototype that forecasts whether a new network attack is
-likely to start in the next 30–60 seconds. The finalized causal PyTorch LSTM
-is the primary intelligence engine; a local hash-linked ledger records compact
-alert evidence without storing raw traffic.
+likely to start in the next 30–60 seconds. The finalized causal PyTorch
+forecasting model is the primary intelligence engine; a local hash-linked
+ledger records compact alert evidence without storing raw traffic.
 
 ```
 Network traffic (PCAP/CSV)
   → feature extraction / preprocessing   (Data Pipeline)
   → time-based network states
-  → six-window causal LSTM
+  → six-window causal forecasting model
   → 30–60 second attack-onset probability
   → attack intelligence → alert → evidence ledger → dashboard
 ```
@@ -22,7 +22,7 @@ Network traffic (PCAP/CSV)
 | `modules/`   | Team modules: `data_pipeline/`, `forecasting/`, `attack_intelligence/` |
 | `backend/`   | FastAPI application: session/replay orchestration, JSON API at `/api/*` |
 | `dashboard/` | Flask web dashboard for judges (calls the backend over localhost) |
-| `lstm/`      | Canonical training/inference implementation and local artifacts |
+| `model/`     | Canonical training/inference implementation and local artifacts |
 | `data/`      | Sample input files (`samples/`) and runtime uploads (`uploads/`, untracked) |
 | `tests/`     | pytest suite |
 | `docs/`      | Architecture, implementation plan, integration and testing docs |
@@ -62,7 +62,7 @@ point.
 
 Pick `ssh_bruteforce_2018-02-14.csv` on the home page. It contains 75
 ten-second windows replayed at two seconds per window. The first five windows
-show `Collecting historical context...`; after six real windows the LSTM is
+show `Collecting historical context...`; after six real windows the model is
 called with the most recent six causal states. The bundled sample has no IP
 fields, so empty flagged-flow and top-talker sections are honest.
 
@@ -75,7 +75,7 @@ fields, so empty flagged-flow and top-talker sections are honest.
   day files carry no IPs or ports, so per-flow records cannot be rebuilt.
 
 `config.yaml` selects `modules.forecasting.implementation: real`. Real mode
-loads `lstm/artifacts/{lstm_model.pt,scaler.joblib,model_metadata.json}` and
+loads `model/artifacts/{model.pt,scaler.joblib,model_metadata.json}` and
 never pads a short sequence or silently changes its scaler/threshold. Change
 the setting to `mock` only for development on a machine without PyTorch or
 artifacts; API results then identify themselves as `model_mode: demo`.
@@ -103,7 +103,7 @@ pytest
 
 The suite covers warm-up behavior, lazy replay inference, alert deduplication,
 deterministic hashing, tamper detection, verification, and the complete
-traffic → state → LSTM → intelligence → alert → ledger flow.
+traffic → state → model → intelligence → alert → ledger flow.
 
 ## Documentation
 

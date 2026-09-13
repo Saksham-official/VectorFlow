@@ -1,4 +1,4 @@
-"""Application adapter for the finalized, causal LSTM forecaster."""
+"""Application adapter for the forecasting model."""
 
 from datetime import timedelta
 from pathlib import Path
@@ -10,9 +10,9 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 
 
 def _pipeline(artifacts_dir: str | None = None):
-    from lstm.src.inference import get_inference_pipeline
+    from model.src.inference import get_inference_pipeline
 
-    path = Path(artifacts_dir or REPO_ROOT / "lstm" / "artifacts")
+    path = Path(artifacts_dir or REPO_ROOT / "model" / "artifacts")
     return get_inference_pipeline(str(path))
 
 
@@ -26,14 +26,14 @@ def forecast(states: list[NetworkState], config: dict[str, Any] | None = None) -
     try:
         result = pipeline.predict_sequence([state.features for state in states])
     except ValueError as exc:
-        from lstm.src.inference import InsufficientHistoryError
+        from model.src.inference import InsufficientHistoryError
 
         if not isinstance(exc, InsufficientHistoryError):
             raise
         return ForecastResult(
             infiltration_probability=None,
             horizon=[],
-            model_name="ForecastLSTM",
+            model_name="ForecastModel",
             forecast_ready=False,
             sequence_length=pipeline.sequence_length,
             model_mode="real",
@@ -55,14 +55,14 @@ def forecast(states: list[NetworkState], config: dict[str, Any] | None = None) -
     return ForecastResult(
         infiltration_probability=probability,
         horizon=[point],
-        model_name="ForecastLSTM",
+        model_name="ForecastModel",
         prediction=bool(result["prediction"]),
         threshold=float(result["threshold"]),
         forecast_horizon_seconds=result["forecast_horizon_seconds"],
         sequence_length=int(result["sequence_length"]),
         forecast_ready=True,
         model_mode="real",
-        model_version="lstm-artifacts",
+        model_version="model-artifacts",
     )
 
 
