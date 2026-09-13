@@ -1,0 +1,2 @@
+Architecture,TP,TN,FP,FN,Recall / Detection Rate,Precision,False Positive Rate (FPR),F1-Score,F2-Score,PR-AUC,ROC-AUC,Balanced Accuracy,Threshold,Inference Latency (ms),Throughput (win/s),Resource Footprint,TTD / Lead Time,Threat Alert-to-Mitigation Ratio
+Unified Threat Engine (Prediction + Forecasting),64,11,0,0,1.0,1.0,0.0,1.0,1.0,1.0,1.0,1.0,0.2907,0.215,4651.2,1.67 MB disk | 22 MB RAM,120 seconds,1.0

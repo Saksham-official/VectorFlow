@@ -1,0 +1,5 @@
+{
+  "LogReg": 0.4538,
+  "RandomForest": 0.2535,
+  "XGBoost": 0.1407
+}
