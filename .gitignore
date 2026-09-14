@@ -28,6 +28,10 @@ data/blockchain/
 !lstm/artifacts/*.pt
 !lstm/artifacts/*.joblib
 
+# Allow model/ package artifacts (flow-level BiLSTM)
+!model/artifacts/*.pt
+!model/artifacts/*.joblib
+
 # Datasets (large, regenerate with modules/data_pipeline/build_training_set.py)
 data/*.csv
 data/*.parquet
