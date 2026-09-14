@@ -31,31 +31,46 @@ class ForecastLSTM(nn.Module):
         Number of input features per time-step (15 for VectorFlow flow windows).
     hidden_dim : int
         LSTM hidden units *per direction*. Total context size = hidden_dim * 2.
+    num_layers : int
+        Number of recurrent layers.
     dropout : float
         Dropout applied between LSTM layers and inside the classifier head.
+    bidirectional : bool
+        Whether to use bidirectional recurrence.
     """
 
-    def __init__(self, in_dim: int = 15, hidden_dim: int = 128, dropout: float = 0.2) -> None:
+    def __init__(
+        self,
+        in_dim: int = 15,
+        hidden_dim: int = 128,
+        num_layers: int = 2,
+        dropout: float = 0.2,
+        bidirectional: bool = True,
+    ) -> None:
         super().__init__()
         self.in_dim = in_dim
         self.hidden_dim = hidden_dim
+        self.num_layers = num_layers
+        self.bidirectional = bidirectional
+        self.directions = 2 if bidirectional else 1
+        lstm_out_dim = hidden_dim * self.directions
 
         self.input_bn = nn.BatchNorm1d(in_dim)
         self.lstm = nn.LSTM(
             input_size=in_dim,
             hidden_size=hidden_dim,
-            num_layers=2,
+            num_layers=num_layers,
             batch_first=True,
-            bidirectional=True,
-            dropout=dropout,
+            dropout=dropout if num_layers > 1 else 0.0,
+            bidirectional=bidirectional,
         )
-        self.norm = nn.LayerNorm(hidden_dim * 2)
-        self.attn_fc = nn.Linear(hidden_dim * 2, 1, bias=False)
+        self.norm = nn.LayerNorm(lstm_out_dim)
+        self.attn_fc = nn.Linear(lstm_out_dim, 1, bias=False)
         self.head = nn.Sequential(
             nn.Dropout(dropout),
-            nn.Linear(hidden_dim * 2, 64),
+            nn.Linear(lstm_out_dim, 64),
             nn.GELU(),
-            nn.Dropout(dropout),
+            nn.Dropout(dropout * 0.5),
             nn.Linear(64, 1),
         )
 
@@ -69,10 +84,13 @@ class ForecastLSTM(nn.Module):
         -------
         Tensor of shape (batch,) — raw logits (apply sigmoid for probability).
         """
-        x_t = x.transpose(1, 2)
-        x_bn = self.input_bn(x_t).transpose(1, 2)
-        out, _ = self.lstm(x_bn)                          # (B, T, H*2)
-        norm_out = self.norm(out)
-        attn_w = torch.softmax(self.attn_fc(norm_out), dim=1)  # (B, T, 1)
-        context = (out * attn_w).sum(dim=1)              # (B, H*2)
-        return self.head(context).squeeze(-1)            # (B,)
+        b, s, f = x.shape
+        x = self.input_bn(x.reshape(b * s, f)).reshape(b, s, f)
+        lstm_out, _ = self.lstm(x)
+        lstm_out = self.norm(lstm_out)
+        scores = self.attn_fc(lstm_out).squeeze(-1)
+        weights = torch.softmax(scores, dim=1).unsqueeze(-1)
+        context = (lstm_out * weights).sum(dim=1)
+        logits = self.head(context).squeeze(-1)
+        return logits
+

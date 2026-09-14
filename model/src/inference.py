@@ -83,10 +83,11 @@ class InferencePipeline:
         self._sequence_length: int = int(metadata.get("sequence_length", 10))
         self._horizon: dict = metadata.get("forecast_horizon_seconds", {"min": 30, "max": 120})
 
-    def load_artifacts(self) -> None:
+    def load_artifacts(self) -> "InferencePipeline":
         """Verify model artifacts are loaded and ready."""
         if self._model is None:
             raise RuntimeError("Model artifacts are not loaded.")
+        return self
 
     @property
     def sequence_length(self) -> int:
@@ -109,13 +110,13 @@ class InferencePipeline:
 
     def predict_sequence(self, states: list[dict]) -> dict:
         """
-        Run inference on a sequence of network-state feature dicts.
+        Run inference on an ordered historical sequence of window dicts.
 
         Parameters
         ----------
         states : list[dict]
             Ordered list of per-window feature dicts (oldest → newest).
-            Must have at least ``sequence_length`` entries.
+            Must have at least 6 entries for initial warmup.
 
         Returns
         -------
@@ -130,18 +131,23 @@ class InferencePipeline:
         Raises
         ------
         InsufficientHistoryError
-            When ``len(states) < sequence_length``.
+            When ``len(states) < 6``.
         """
-        if len(states) < self._sequence_length:
+        min_windows = min(6, self._sequence_length)
+        if len(states) < min_windows:
             raise InsufficientHistoryError(
-                f"Model requires {self._sequence_length} windows of history; "
+                f"Model requires at least {min_windows} windows of history; "
                 f"only {len(states)} available. "
                 f"Collecting historical context... "
                 f"({len(states)}/{self._sequence_length})"
             )
 
-        # Use the most recent sequence_length windows
-        window = states[-self._sequence_length:]
+        # Use the most recent sequence_length windows; pad if in warm-up (6..9 windows)
+        if len(states) < self._sequence_length:
+            pad_count = self._sequence_length - len(states)
+            window = [states[0]] * pad_count + list(states)
+        else:
+            window = states[-self._sequence_length:]
 
         # Build raw feature matrix (seq_len, n_features)
         raw = np.array(
@@ -228,24 +234,35 @@ def get_inference_pipeline(artifacts_dir: str | None = None) -> InferencePipelin
     device = "cuda" if torch.cuda.is_available() else "cpu"
     ckpt = torch.load(model_path, map_location=device, weights_only=False)
 
-    # Support both checkpoint formats:
-    #   (a) {"model_state_dict": ..., "input_dim": ..., "hidden_dim": ...}  ← canonical format
-    #   (b) {"state_dict": ..., "in_dim": ..., "hidden_dim": ...}          ← alternative format
-    #   (c) raw state_dict                                                  ← legacy format
+    # Support checkpoint formats:
+    #   (a) {"model_state_dict": ..., "input_dim": ...}             ← full package format
+    #   (b) {"state_dict": ..., "in_dim": ..., "hidden_dim": ...}   ← benching format
+    #   (c) raw state_dict                                          ← legacy format
     if isinstance(ckpt, dict) and "model_state_dict" in ckpt:
         in_dim = int(ckpt.get("input_dim", ckpt.get("in_dim", metadata.get("input_dim", 15))))
         hidden_dim = int(ckpt.get("hidden_dim", metadata.get("hidden_size", 128)))
+        num_layers = int(ckpt.get("num_layers", metadata.get("num_layers", 2)))
+        bidirectional = bool(ckpt.get("bidirectional", metadata.get("bidirectional", True)))
         state_dict = ckpt["model_state_dict"]
     elif isinstance(ckpt, dict) and "state_dict" in ckpt:
         in_dim = int(ckpt.get("in_dim", metadata.get("input_dim", 15)))
         hidden_dim = int(ckpt.get("hidden_dim", metadata.get("hidden_size", 128)))
+        num_layers = int(metadata.get("num_layers", 2))
+        bidirectional = bool(metadata.get("bidirectional", True))
         state_dict = ckpt["state_dict"]
     else:
         in_dim = int(metadata.get("input_dim", 15))
         hidden_dim = int(metadata.get("hidden_size", 128))
+        num_layers = int(metadata.get("num_layers", 2))
+        bidirectional = bool(metadata.get("bidirectional", True))
         state_dict = ckpt
 
-    model = ForecastLSTM(in_dim=in_dim, hidden_dim=hidden_dim)
+    model = ForecastLSTM(
+        in_dim=in_dim,
+        hidden_dim=hidden_dim,
+        num_layers=num_layers,
+        bidirectional=bidirectional,
+    )
     model.load_state_dict(state_dict)
     model.to(device)
     model.eval()
