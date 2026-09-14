@@ -83,6 +83,11 @@ class InferencePipeline:
         self._sequence_length: int = int(metadata.get("sequence_length", 10))
         self._horizon: dict = metadata.get("forecast_horizon_seconds", {"min": 30, "max": 120})
 
+    def load_artifacts(self) -> None:
+        """Verify model artifacts are loaded and ready."""
+        if self._model is None:
+            raise RuntimeError("Model artifacts are not loaded.")
+
     @property
     def sequence_length(self) -> int:
         return self._sequence_length
@@ -224,9 +229,14 @@ def get_inference_pipeline(artifacts_dir: str | None = None) -> InferencePipelin
     ckpt = torch.load(model_path, map_location=device, weights_only=False)
 
     # Support both checkpoint formats:
-    #   (a) {"state_dict": ..., "in_dim": ..., "hidden_dim": ...}  ← benching format
-    #   (b) raw state_dict                                           ← legacy format
-    if isinstance(ckpt, dict) and "state_dict" in ckpt:
+    #   (a) {"model_state_dict": ..., "input_dim": ..., "hidden_dim": ...}  ← canonical format
+    #   (b) {"state_dict": ..., "in_dim": ..., "hidden_dim": ...}          ← alternative format
+    #   (c) raw state_dict                                                  ← legacy format
+    if isinstance(ckpt, dict) and "model_state_dict" in ckpt:
+        in_dim = int(ckpt.get("input_dim", ckpt.get("in_dim", metadata.get("input_dim", 15))))
+        hidden_dim = int(ckpt.get("hidden_dim", metadata.get("hidden_size", 128)))
+        state_dict = ckpt["model_state_dict"]
+    elif isinstance(ckpt, dict) and "state_dict" in ckpt:
         in_dim = int(ckpt.get("in_dim", metadata.get("input_dim", 15)))
         hidden_dim = int(ckpt.get("hidden_dim", metadata.get("hidden_size", 128)))
         state_dict = ckpt["state_dict"]

@@ -3,7 +3,7 @@
   "hidden_size": 128,
   "num_layers": 2,
   "bidirectional": true,
-  "sequence_length": 10,
+  "sequence_length": 6,
   "input_dim": 15,
   "threshold": 0.3367,
   "feature_cols": [

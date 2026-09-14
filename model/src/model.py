@@ -35,12 +35,12 @@ class ForecastLSTM(nn.Module):
         Dropout applied between LSTM layers and inside the classifier head.
     """
 
-    def __init__(self, in_dim: int, hidden_dim: int = 128, dropout: float = 0.2) -> None:
+    def __init__(self, in_dim: int = 15, hidden_dim: int = 128, dropout: float = 0.2) -> None:
         super().__init__()
         self.in_dim = in_dim
         self.hidden_dim = hidden_dim
 
-        self.in_ln = nn.LayerNorm(in_dim)
+        self.input_bn = nn.BatchNorm1d(in_dim)
         self.lstm = nn.LSTM(
             input_size=in_dim,
             hidden_size=hidden_dim,
@@ -49,14 +49,14 @@ class ForecastLSTM(nn.Module):
             bidirectional=True,
             dropout=dropout,
         )
-        # Soft attention: score each time-step, then take weighted sum
-        self.attn = nn.Linear(hidden_dim * 2, 1)
-        self.fc = nn.Sequential(
-            nn.LayerNorm(hidden_dim * 2),
-            nn.Linear(hidden_dim * 2, 32),
+        self.norm = nn.LayerNorm(hidden_dim * 2)
+        self.attn_fc = nn.Linear(hidden_dim * 2, 1, bias=False)
+        self.head = nn.Sequential(
+            nn.Dropout(dropout),
+            nn.Linear(hidden_dim * 2, 64),
             nn.GELU(),
             nn.Dropout(dropout),
-            nn.Linear(32, 1),
+            nn.Linear(64, 1),
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
@@ -69,8 +69,10 @@ class ForecastLSTM(nn.Module):
         -------
         Tensor of shape (batch,) — raw logits (apply sigmoid for probability).
         """
-        x = self.in_ln(x)                          # (B, T, F)
-        out, _ = self.lstm(x)                       # (B, T, H*2)
-        attn_w = torch.softmax(self.attn(out), dim=1)  # (B, T, 1)
-        context = (out * attn_w).sum(dim=1)         # (B, H*2)
-        return self.fc(context).squeeze(-1)         # (B,)
+        x_t = x.transpose(1, 2)
+        x_bn = self.input_bn(x_t).transpose(1, 2)
+        out, _ = self.lstm(x_bn)                          # (B, T, H*2)
+        norm_out = self.norm(out)
+        attn_w = torch.softmax(self.attn_fc(norm_out), dim=1)  # (B, T, 1)
+        context = (out * attn_w).sum(dim=1)              # (B, H*2)
+        return self.head(context).squeeze(-1)            # (B,)
