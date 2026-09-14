@@ -27,6 +27,8 @@ data/blockchain/
 # Allow production LSTM artifacts (already tracked, explicitly kept)
 !lstm/artifacts/*.pt
 !lstm/artifacts/*.joblib
+!lstm/models/*.pt
+!lstm/models/*.joblib
 
 # Allow model/ package artifacts (flow-level BiLSTM)
 !model/artifacts/*.pt
